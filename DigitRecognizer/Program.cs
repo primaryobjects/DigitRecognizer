@@ -20,7 +20,7 @@ namespace DigitRecognizer
         private static int _pixelCount = Int32.Parse(ConfigurationManager.AppSettings["Width"]) * Int32.Parse(ConfigurationManager.AppSettings["Height"]);
         private static int _classCount = Int32.Parse(ConfigurationManager.AppSettings["ClassCount"]);
         private static int _trainCount = Int32.Parse(ConfigurationManager.AppSettings["TrainCount"]);
-        private static int _sigma = Int32.Parse(ConfigurationManager.AppSettings["Sigma"]);
+        private static double _sigma = Double.Parse(ConfigurationManager.AppSettings["Sigma"]);
         private static string _trainPath = ConfigurationManager.AppSettings["TrainPath"];
         private static string _cvPath = ConfigurationManager.AppSettings["CvPath"];
         private static string _testPath = ConfigurationManager.AppSettings["TestPath"];
