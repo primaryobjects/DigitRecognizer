@@ -1,12 +1,12 @@
-﻿using CsvHelper;
-using MLParser.Types;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CsvHelper;
+using MLParser.Types;
 
-namespace MLParser.DataLoader.Interface
+namespace MLParser.Interface
 {
     public interface IRowParser
     {

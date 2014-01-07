@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 using Accord.MachineLearning.VectorMachines;
 using Accord.MachineLearning.VectorMachines.Learning;
 using Accord.Statistics.Kernels;
-using MLParser.DataLoader;
-using MLParser.DataLoader.Parsers;
+using MLParser;
+using MLParser.Parsers;
 using MLParser.Types;
 
 namespace DigitRecognizer

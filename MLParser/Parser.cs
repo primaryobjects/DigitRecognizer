@@ -5,10 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CsvHelper;
-using MLParser.DataLoader.Interface;
+using MLParser.Interface;
 using MLParser.Types;
 
-namespace MLParser.DataLoader
+namespace MLParser
 {
     public class Parser
     {

@@ -42,9 +42,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DataLoader\Interface\IRowParser.cs" />
-    <Compile Include="DataLoader\Parser.cs" />
-    <Compile Include="DataLoader\Parsers\FrontLabelParser.cs" />
+    <Compile Include="Interface\IRowParser.cs" />
+    <Compile Include="Parser.cs" />
+    <Compile Include="Parsers\FrontLabelParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Types\MLData.cs" />
   </ItemGroup>
