@@ -15,6 +15,8 @@ namespace DigitRecognizer
 {
     class Program
     {
+        #region App.Config Values
+
         private static int _pixelCount = Int32.Parse(ConfigurationManager.AppSettings["Width"]) * Int32.Parse(ConfigurationManager.AppSettings["Height"]);
         private static int _classCount = Int32.Parse(ConfigurationManager.AppSettings["ClassCount"]);
         private static int _trainCount = Int32.Parse(ConfigurationManager.AppSettings["TrainCount"]);
@@ -22,6 +24,8 @@ namespace DigitRecognizer
         private static string _trainPath = ConfigurationManager.AppSettings["TrainPath"];
         private static string _cvPath = ConfigurationManager.AppSettings["CvPath"];
         private static string _testPath = ConfigurationManager.AppSettings["TestPath"];
+
+        #endregion
 
         static void Main(string[] args)
         {
@@ -60,11 +64,11 @@ namespace DigitRecognizer
                 teacher.Algorithm = (svm, classInputs, classOutputs, i, j) => new SequentialMinimalOptimization(svm, classInputs, classOutputs) { CacheSize = 0 };
 
                 // Train the svm.
-                ShowProgressFor(() => teacher.Run(), "Training");
+                Utility.ShowProgressFor(() => teacher.Run(), "Training");
             }
 
             // Calculate accuracy.
-            double accuracy = ShowProgressFor<double>(() => CalculateAccuracy(machine, inputs, outputs), "Calculating Accuracy");
+            double accuracy = Utility.ShowProgressFor<double>(() => Accuracy.CalculateAccuracy(machine, inputs, outputs), "Calculating Accuracy");
             Console.WriteLine("Accuracy: " + Math.Round(accuracy * 100, 2) + "%");
 
             return machine;
@@ -86,23 +90,7 @@ namespace DigitRecognizer
             ReadData(path, count, out inputs, out outputs, true);
 
             // Save output.
-            ShowProgressFor(() => SaveOutput(machine, inputs, outputPath), "Saving Output");
-        }
-
-        /// <summary>
-        /// Helper method for displaying progress text to the console for a specific operation.
-        /// </summary>
-        /// <param name="action">Action</param>
-        /// <param name="text">string</param>
-        private static T ShowProgressFor<T>(Func<T> action, string text)
-        {
-            T result;
-
-            //Console.Write(text + " .. ");
-            result = action();
-            //Console.WriteLine("Done!");
-
-            return result;
+            Utility.ShowProgressFor(() => Accuracy.SaveOutput(machine, inputs, outputPath), "Saving Output");
         }
 
         /// <summary>
@@ -116,7 +104,7 @@ namespace DigitRecognizer
         private static void ReadData(string path, int count, out double[][] inputs, out int[] outputs, bool isTest = false)
         {
             // Read the training data CSV file and get a resulting array of doubles and output labels.
-            List<DigitData> rows = ShowProgressFor<List<DigitData>>(() => ReadData(path, count, isTest), "Reading data");
+            List<DigitData> rows = Utility.ShowProgressFor<List<DigitData>>(() => ReadData(path, count, isTest), "Reading data");
             Console.WriteLine(rows.Count + " rows processed.");
 
             // Convert the rows into arrays for processing.
@@ -179,48 +167,6 @@ namespace DigitRecognizer
             }
 
             return digits;
-        }
-
-        /// <summary>
-        /// Calculates the accuracy for a trainined SVM against the data.
-        /// </summary>
-        /// <param name="machine">MulticlassSupportVectorMachine</param>
-        /// <param name="data">List of DigitData</param>
-        /// <returns>double</returns>
-        private static double CalculateAccuracy(MulticlassSupportVectorMachine machine, double[][] inputs, int[] outputs)
-        {
-            double correct = 0;
-
-            for (int i = 0; i < inputs.Length; i++)
-            {
-                int output = machine.Compute(inputs[i]);
-                if (output == outputs[i])
-                {
-                    correct++;
-                }
-            }
-
-            return (correct / (double)inputs.Length);
-        }
-
-        /// <summary>
-        /// Calculates the output for the svm and saves each result to a text file, one per line.
-        /// </summary>
-        /// <param name="machine">MulticlassSupportVectorMachine</param>
-        /// <param name="inputs">double[][]</param>
-        /// <param name="path">string</param>
-        /// <returns>int - number of rows processed</returns>
-        private static int SaveOutput(MulticlassSupportVectorMachine machine, double[][] inputs, string path)
-        {
-            File.AppendAllText(path, "ImageId,Label\r\n");
-
-            for (int i = 0; i < inputs.Length; i++)
-            {
-                int output = machine.Compute(inputs[i]);
-                File.AppendAllText(path, (i + 1) + "," + output.ToString() + "\r\n");
-            }
-
-            return inputs.Length;
         }
     }
 }
