@@ -38,8 +38,8 @@ namespace MLParser.Parsers
                 // Read the value.
                 double value = Double.Parse(reader[column++]);
 
-                // Normalize the value: X = (X - avg) / max - min => X = (X - 127) / 255. Alternate method X = (X - min) / (max - min) => X = X / 255. http://en.wikipedia.org/wiki/Feature_scaling
-                value = (value - 127d) / 255d;
+                // Normalize the value (0 - 1): X = (X - min) / (max - min) => X = X / 255. Alternate method (-0.5 - 0.5): X = (X - avg) / max - min => X = (X - 127) / 255. http://en.wikipedia.org/wiki/Feature_scaling
+                value = value / 255d;
 
                 // Store the value in our data list.
                 row.Data.Add(value);
