@@ -1,15 +1,15 @@
-﻿using Accord.MachineLearning.VectorMachines;
-using Accord.MachineLearning.VectorMachines.Learning;
-using Accord.Statistics.Kernels;
-using CsvHelper;
-using DigitRecognizer.Types;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Accord.MachineLearning.VectorMachines;
+using Accord.MachineLearning.VectorMachines.Learning;
+using Accord.Statistics.Kernels;
+using MLParser.DataLoader;
+using MLParser.DataLoader.Parsers;
+using MLParser.Types;
 
 namespace DigitRecognizer
 {
@@ -51,11 +51,12 @@ namespace DigitRecognizer
             double[][] inputs;
             int[] outputs;
 
-            // Convert the DigitData (pixels and labels) to arrays for inputs and outputs.
+            // Parse the csv file to get inputs and outputs.
             ReadData(path, count, out inputs, out outputs);
 
             if (machine == null)
             {
+                // Training.
                 MulticlassSupportVectorLearning teacher = null;
 
                 // Create the svm.
@@ -86,7 +87,7 @@ namespace DigitRecognizer
             double[][] inputs;
             int[] outputs;
 
-            // Convert the DigitData (pixels and labels) to arrays for inputs and outputs.
+            // Parse the csv file to get inputs and outputs.
             ReadData(path, count, out inputs, out outputs, true);
 
             // Save output.
@@ -101,72 +102,21 @@ namespace DigitRecognizer
         /// <param name="inputs">output variable for double[][] values (inputs)</param>
         /// <param name="outputs">output variable for int[] values (labels)</param>
         /// <param name="isTest">bool - true if data contains output label, false if data is only pixels (ie., test data)</param>
-        private static void ReadData(string path, int count, out double[][] inputs, out int[] outputs, bool isTest = false)
+        /// <returns>int - number of rows read</returns>
+        private static int ReadData(string path, int count, out double[][] inputs, out int[] outputs, bool isTest = false)
         {
+            Parser parser = new Parser(new FrontLabelParser());
+
             // Read the training data CSV file and get a resulting array of doubles and output labels.
-            List<DigitData> rows = Utility.ShowProgressFor<List<DigitData>>(() => ReadData(path, count, isTest), "Reading data");
-            Console.WriteLine(rows.Count + " rows processed.");
+            List<MLData> rows = Utility.ShowProgressFor<List<MLData>>(() => parser.Parse(path, count, isTest), "Reading data");
 
             // Convert the rows into arrays for processing.
-            inputs = rows.Select(t => t.Pixels.ToArray()).ToArray();
+            inputs = rows.Select(t => t.Data.ToArray()).ToArray();
             outputs = rows.Select(t => t.Label).ToArray();
-        }
 
-        /// <summary>
-        /// Parses a csv file containing the MNIST data set, returning a list of DigitData.
-        /// The csv file's first column is the digit label, and the remaining 784 columns are pixels data for a 28x28 gray-scale image.
-        /// </summary>
-        /// <param name="path">string</param>
-        /// <param name="maxRows">int - max number of rows to read</param>
-        /// <param name="isTest">bool - true if data contains output label, false if data is only pixels (ie., test data)</param>
-        /// <returns>List of DigitData</returns>
-        private static List<DigitData> ReadData(string path, int maxRows = 0, bool isTest = false)
-        {
-            List<DigitData> digits = new List<DigitData>();
+            Console.WriteLine(rows.Count + " rows processed.");
 
-            using (FileStream f = new FileStream(path, FileMode.Open))
-            {
-                using (StreamReader streamReader = new StreamReader(f, Encoding.GetEncoding(1252)))
-                {
-                    using (CsvReader csvReader = new CsvReader(streamReader))
-                    {
-                        csvReader.Configuration.HasHeaderRecord = false;
-
-                        while (csvReader.Read())
-                        {
-                            // Determine the image size, as configured in the app.config.
-                            int column = 0;
-                            DigitData digit = new DigitData();
-
-                            if (!isTest)
-                            {
-                                // Read the digit label.
-                                digit.Label = Int32.Parse(csvReader[column++]);
-                            }
-
-                            // Read the pixels (+1 since the first column is the output label).
-                            while (digit.Pixels.Count < _pixelCount)
-                            {
-                                // Read the value.
-                                double value = Double.Parse(csvReader[column++]);
-
-                                // Normalize the value: X = (X - avg) / max - min => X = (X - 127) / 255. Alternate method X = (X - min) / (max - min) => X = X / 255. http://en.wikipedia.org/wiki/Feature_scaling
-                                value = (value - 127d) / 255d;
-
-                                // Store the value in our pixels list.
-                                digit.Pixels.Add(value);
-                            }
-
-                            digits.Add(digit);
-
-                            if (maxRows > 0 && digits.Count >= maxRows)
-                                break;
-                        }
-                    }
-                }
-            }
-
-            return digits;
+            return rows.Count;
         }
     }
 }
