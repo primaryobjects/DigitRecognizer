@@ -11,11 +11,16 @@ namespace MLParser.Interface
     public interface IRowParser
     {
         /// <summary>
-        /// Parses a row from a csv file.
+        /// Parses a row from the csv file and returns the label (output).
         /// </summary>
         /// <param name="reader">CsvReader</param>
-        /// <param name="isTest">bool - true if data contains output label, false if data is only input data (ie., test data)</param>
-        /// <returns>MLData</returns>
-        MLData Parse(CsvReader reader, bool isTest = false);
+        /// <returns>int</returns>
+        int ReadLabel(CsvReader reader);
+        /// <summary>
+        /// Parses a row from the csv file and returns the data (input) fields.
+        /// </summary>
+        /// <param name="reader">CsvReader</param>
+        /// <returns>List of double</returns>
+        List<double> ReadData(CsvReader reader);
     }
 }

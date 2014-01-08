@@ -24,9 +24,8 @@ namespace MLParser
         /// </summary>
         /// <param name="path">string</param>
         /// <param name="maxRows">int - max number of rows to read</param>
-        /// <param name="isTest">bool - true if data contains output label, false if data is only input data (ie., test data)</param>
         /// <returns>List of MLData</returns>
-        public List<MLData> Parse(string path, int maxRows = 0, bool isTest = false)
+        public List<MLData> Parse(string path, int maxRows = 0)
         {
             List<MLData> dataList = new List<MLData>();
 
@@ -40,7 +39,13 @@ namespace MLParser
 
                         while (csvReader.Read())
                         {
-                            dataList.Add(_rowParser.Parse(csvReader, isTest));
+                            MLData row = new MLData()
+                            {
+                                Label = _rowParser.ReadLabel(csvReader),
+                                Data = _rowParser.ReadData(csvReader)
+                            };
+
+                            dataList.Add(row);
 
                             if (maxRows > 0 && dataList.Count >= maxRows)
                                 break;

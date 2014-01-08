@@ -10,6 +10,7 @@ using Accord.Statistics.Kernels;
 using MLParser;
 using MLParser.Parsers;
 using MLParser.Types;
+using MLParser.Interface;
 
 namespace DigitRecognizer
 {
@@ -52,7 +53,7 @@ namespace DigitRecognizer
             int[] outputs;
 
             // Parse the csv file to get inputs and outputs.
-            ReadData(path, count, out inputs, out outputs);
+            ReadData(path, count, out inputs, out outputs, new FrontLabelParser());
 
             if (machine == null)
             {
@@ -88,7 +89,7 @@ namespace DigitRecognizer
             int[] outputs;
 
             // Parse the csv file to get inputs and outputs.
-            ReadData(path, count, out inputs, out outputs, true);
+            ReadData(path, count, out inputs, out outputs, new TestParser());
 
             // Save output.
             Utility.ShowProgressFor(() => Accuracy.SaveOutput(machine, inputs, outputPath), "Saving Output");
@@ -101,14 +102,14 @@ namespace DigitRecognizer
         /// <param name="count">int - max number of rows to read</param>
         /// <param name="inputs">output variable for double[][] values (inputs)</param>
         /// <param name="outputs">output variable for int[] values (labels)</param>
-        /// <param name="isTest">bool - true if data contains output label, false if data is only pixels (ie., test data)</param>
+        /// <param name="rowParser">IRowParser - indicates how to process the csv data</param>
         /// <returns>int - number of rows read</returns>
-        private static int ReadData(string path, int count, out double[][] inputs, out int[] outputs, bool isTest = false)
+        private static int ReadData(string path, int count, out double[][] inputs, out int[] outputs, IRowParser rowParser)
         {
-            Parser parser = new Parser(new FrontLabelParser());
+            Parser parser = new Parser(rowParser);
 
             // Read the training data CSV file and get a resulting array of doubles and output labels.
-            List<MLData> rows = Utility.ShowProgressFor<List<MLData>>(() => parser.Parse(path, count, isTest), "Reading data");
+            List<MLData> rows = Utility.ShowProgressFor<List<MLData>>(() => parser.Parse(path, count), "Reading data");
 
             // Convert the rows into arrays for processing.
             inputs = rows.Select(t => t.Data.ToArray()).ToArray();
